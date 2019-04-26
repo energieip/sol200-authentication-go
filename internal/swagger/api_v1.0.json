@@ -1,0 +1,328 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication",
+      "description": "Authentication API",
+      "contact": {
+        "email": "developer@energie-ip.com"
+      },
+      "version": "1.0"
+    },
+    "servers": [
+      {
+        "url": "/{basePath}",
+        "variables": {
+          "basePath": {
+            "default": "v1.0"
+          }
+        }
+      }
+    ],
+    "paths": {
+      "/authenticate": {
+        "post": {
+          "tags": [
+            "authentication"
+          ],
+          "summary": "createToken",
+          "description": "User authentication",
+          "operationId": "CreateToken",
+          "parameters": [],
+          "requestBody": {
+            "description": "User credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Credential"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/createTokenResponse"
+                  }
+                }
+              }
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      },
+      "/userInfo": {
+        "get": {
+          "tags": [
+            "authentication"
+          ],
+          "summary": "userInfo",
+          "description": "User information",
+          "operationId": "UserInfo",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserInfo"
+                  }
+                }
+              }
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "Authorization": []
+            }
+          ]
+        }
+      },
+      "/userAuthorization": {
+        "get": {
+          "tags": [
+            "authentication"
+          ],
+          "summary": "userAuthorization",
+          "description": "User autorization",
+          "operationId": "UserAuthorization",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserAuthorization"
+                  }
+                }
+              }
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": [
+            {
+              "Authorization": []
+            }
+          ]
+        }
+      },
+      "/functions": {
+        "get": {
+          "summary": "getFunctions",
+          "description": "Return the list of available API functions",
+          "operationId": "GetFunctions",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "headers": {},
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/getFunctionsResponse"
+                  }
+                }
+              }
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Credential": {
+          "title": "Credential",
+          "required": [
+            "username",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "userid"
+            },
+            "password": {
+              "type": "string",
+              "description": "user password"
+            }
+          }
+        },
+        "UserInfo": {
+          "title": "UserInfo",
+          "required": [
+            "username"
+          ],
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "userid"
+            },
+            "password": {
+              "type": "string",
+              "description": "user password"
+            },
+            "priviledges": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "user priviledges"
+            },
+            "teams": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "user teams"
+            },
+            "accessGroups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "user access group"
+            }
+          }
+        },
+        "UserAuthorization": {
+          "title": "UserAuthorization",
+          "type": "object",
+          "properties": {
+            "priviledges": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "user priviledges"
+            },
+            "accessGroups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "user access group"
+            }
+          }
+        },
+        "Error": {
+          "title": "Error",
+          "required": [
+            "code",
+            "message"
+          ],
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "createTokenResponse": {
+          "title": "createTokenResponse",
+          "type": "object",
+          "properties": {
+            "Token": {
+              "type": "string",
+              "description": "Session Token"
+            }
+          }
+        },
+        "getFunctionsResponse": {
+          "title": "getFunctionsResponse",
+          "type": "object",
+          "properties": {
+            "functions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "list of available functions"
+            }
+          }
+        }
+      },
+      "securitySchemes": {
+        "Authorization": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "For accessing the API a valid JWT token must be passed in all the queries in the Authorization header. Authorization header : Bearer xxxxxx.yyyyyyy.zzzzzz",
+          "name": "Authorization",
+          "in": "header"
+        }
+      }
+    },
+    "security": [
+      {
+        "Authorization": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "authentication",
+        "description": "User authentication process"
+      },
+      {
+        "name": "config",
+        "description": "Configuration"
+      }
+    ]
+  }

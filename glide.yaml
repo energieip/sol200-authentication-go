@@ -1,0 +1,8 @@
+package: github.com/energieip/sol200-authentication-go
+homepage: https://github.com/energieip/sol200-authentication-go
+license: Apache v2.0
+owners:
+- name: Amandine Drebes
+  email: amandine@energie-ip.com
+  homepage: https://energie-ip.com
+import: []

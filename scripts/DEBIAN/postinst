@@ -1,0 +1,5 @@
+#!/bin/bash
+
+systemctl daemon-reload
+systemctl enable energieip-sol200-authentication.service
+systemctl restart energieip-sol200-authentication.service

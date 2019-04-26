@@ -1,0 +1,15 @@
+[Unit]
+Description=Authentication Core service management
+After=rethinkdb.service network-online.target
+Wants=network-online.target
+PartOf=rethinkdb.service network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/energieip-sol200-authentication -c /etc/energieip-sol200-authentication/config.json
+KillMode=process
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
