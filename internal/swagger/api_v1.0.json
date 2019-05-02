@@ -304,9 +304,7 @@
           "type": "http",
           "scheme": "bearer",
           "bearerFormat": "JWT",
-          "description": "For accessing the API a valid JWT token must be passed in all the queries in the Authorization header. Authorization header : Bearer xxxxxx.yyyyyyy.zzzzzz",
-          "name": "Authorization",
-          "in": "header"
+          "description": "For accessing the API a valid JWT token must be passed in all the queries in the Authorization header. Authorization header : Bearer xxxxxx.yyyyyyy.zzzzzz"
         }
       }
     },
