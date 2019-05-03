@@ -189,7 +189,7 @@ func (api *API) swagger() {
 
 	//setup API
 	router.HandleFunc(apiV1+"/user/login", api.createToken).Methods("POST")
-	router.HandleFunc(apiV1+"/userInfo", api.verification(api.userInfo)).Methods("GET")
+	router.HandleFunc(apiV1+"/user", api.verification(api.userInfo)).Methods("GET")
 	router.HandleFunc(apiV1+"/userAuthorization", api.verification(api.userAuthorization)).Methods("GET")
 
 	//unversionned API
