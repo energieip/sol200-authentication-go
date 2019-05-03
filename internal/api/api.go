@@ -34,21 +34,25 @@ type APIError struct {
 }
 
 type API struct {
-	db          database.Database
-	certificate string
-	keyfile     string
-	apiPort     string
-	apiPassword string
+	db              database.Database
+	EventsToBackend chan map[string]interface{}
+	certificate     string
+	keyfile         string
+	apiPort         string
+	apiPassword     string
+	apiIP           string
 }
 
 //InitAPI start API connection
 func InitAPI(db database.Database, conf pkg.ServiceConfig) *API {
 	api := API{
-		db:          db,
-		certificate: conf.Certificate,
-		keyfile:     conf.Key,
-		apiPassword: conf.APIPassword,
-		apiPort:     conf.APIPort,
+		db:              db,
+		EventsToBackend: make(chan map[string]interface{}),
+		certificate:     conf.Certificate,
+		keyfile:         conf.Key,
+		apiPassword:     conf.APIPassword,
+		apiPort:         conf.APIPort,
+		apiIP:           conf.APIIp,
 	}
 	go api.swagger()
 	return &api
@@ -184,7 +188,7 @@ func (api *API) swagger() {
 	router.HandleFunc(apiV1+"/functions", api.getV1Functions).Methods("GET")
 
 	//setup API
-	router.HandleFunc(apiV1+"/authenticate", api.createToken).Methods("POST")
+	router.HandleFunc(apiV1+"/user/login", api.createToken).Methods("POST")
 	router.HandleFunc(apiV1+"/userInfo", api.verification(api.userInfo)).Methods("GET")
 	router.HandleFunc(apiV1+"/userAuthorization", api.verification(api.userAuthorization)).Methods("GET")
 
@@ -192,5 +196,5 @@ func (api *API) swagger() {
 	router.HandleFunc("/versions", api.getAPIs).Methods("GET")
 	router.HandleFunc("/functions", api.getFunctions).Methods("GET")
 
-	log.Fatal(http.ListenAndServeTLS(":"+api.apiPort, api.certificate, api.keyfile, router))
+	log.Fatal(http.ListenAndServeTLS(api.apiIP+":"+api.apiPort, api.certificate, api.keyfile, router))
 }

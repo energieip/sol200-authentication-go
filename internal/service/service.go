@@ -6,17 +6,20 @@ import (
 	pkg "github.com/energieip/common-components-go/pkg/service"
 	"github.com/energieip/sol200-authentication-go/internal/api"
 	"github.com/energieip/sol200-authentication-go/internal/database"
+	"github.com/energieip/sol200-authentication-go/internal/network"
 	"github.com/romana/rlog"
 )
 
 //CoreService content
 type CoreService struct {
-	db  database.Database
-	api *api.API
+	server network.ServerNetwork //Remote server
+	db     database.Database
+	api    *api.API
 }
 
 //Initialize service
 func (s *CoreService) Initialize(confFile string) error {
+	clientID := "AuthAPI"
 	conf, err := pkg.ReadServiceConfig(confFile)
 	if err != nil {
 		rlog.Error("Cannot parse configuration file " + err.Error())
@@ -34,6 +37,18 @@ func (s *CoreService) Initialize(confFile string) error {
 	}
 	s.db = *db
 
+	serverNet, err := network.CreateServerNetwork()
+	if err != nil {
+		rlog.Error("Cannot connect to broker " + conf.NetworkBroker.IP + " error: " + err.Error())
+		return err
+	}
+	s.server = *serverNet
+
+	err = s.server.LocalConnection(*conf, clientID)
+	if err != nil {
+		rlog.Error("Cannot connect to drivers broker " + conf.NetworkBroker.IP + " error: " + err.Error())
+		return err
+	}
 	web := api.InitAPI(s.db, *conf)
 	s.api = web
 
@@ -44,6 +59,7 @@ func (s *CoreService) Initialize(confFile string) error {
 //Stop service
 func (s *CoreService) Stop() {
 	rlog.Info("Stopping Authentication service")
+	s.server.Disconnect()
 	s.db.Close()
 	rlog.Info("Authentication service stopped")
 }
@@ -51,6 +67,14 @@ func (s *CoreService) Stop() {
 //Run service mainloop
 func (s *CoreService) Run() error {
 	for {
-		select {}
+		select {
+		case apiEvents := <-s.api.EventsToBackend:
+			for eventType, event := range apiEvents {
+				rlog.Info("get API event", eventType, event)
+				switch eventType {
+
+				}
+			}
+		}
 	}
 }

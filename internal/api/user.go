@@ -14,7 +14,9 @@ import (
 )
 
 type JwtToken struct {
-	Token string `json:"token"`
+	Token     string `json:"accessToken"`
+	TokenType string `json:"tokenType"`
+	ExpireIn  int    `json:"expireIn"`
 }
 
 type Claims struct {
@@ -65,7 +67,12 @@ func (api *API) createToken(w http.ResponseWriter, req *http.Request) {
 	// 	Value:   tokenString,
 	// 	Expires: expirationTime,
 	// })
-	json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
+	res := JwtToken{
+		Token:     tokenString,
+		TokenType: "bearer",
+		ExpireIn:  300,
+	}
+	json.NewEncoder(w).Encode(res)
 }
 
 func (api *API) userInfo(w http.ResponseWriter, r *http.Request) {

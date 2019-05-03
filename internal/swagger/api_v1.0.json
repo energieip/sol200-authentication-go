@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "/authenticate": {
+      "/user/login": {
         "post": {
           "tags": [
             "authentication"
@@ -279,9 +279,21 @@
           "title": "createTokenResponse",
           "type": "object",
           "properties": {
-            "Token": {
+            "tokenType": {
+              "type": "string",
+              "description": "Session type",
+              "enum": [
+                "bearer"
+              ]
+            },
+            "accessToken": {
               "type": "string",
               "description": "Session Token"
+            },
+            "expireIn": {
+              "type": "integer",
+              "format": "int32",
+              "description": "token expiration in seconds"
             }
           }
         },
