@@ -101,8 +101,8 @@ func (api *API) userAuthorization(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	permissions := core.UserAuthorization{
-		Priviledges: user.Priviledges,
-		AccessGroup: user.AccessGroup,
+		Priviledges:  user.Priviledges,
+		AccessGroups: user.AccessGroups,
 	}
 	json.NewEncoder(w).Encode(permissions)
 }

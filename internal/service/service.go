@@ -79,9 +79,9 @@ func (s *CoreService) createUser(evt interface{}) {
 		hasher := sha256.New()
 		hasher.Write([]byte(token))
 		access := duser.UserAccess{
-			UserHash:    hex.EncodeToString(hasher.Sum(nil)),
-			Priviledges: user.Priviledges,
-			AccessGroup: user.AccessGroup,
+			UserHash:     hex.EncodeToString(hasher.Sum(nil)),
+			Priviledges:  user.Priviledges,
+			AccessGroups: user.AccessGroups,
 		}
 		dump, _ := access.ToJSON()
 		s.server.SendData("newUser", dump)

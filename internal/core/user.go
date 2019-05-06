@@ -4,11 +4,11 @@ import "encoding/json"
 
 //User
 type User struct {
-	Username    string   `json:"username"`
-	Password    *string  `json:"password,omitempty"`
-	Priviledges []string `json:"priviledges"`
-	Teams       []string `json:"teams"`
-	AccessGroup []int    `json:"accessGroups"`
+	Username     string   `json:"username"`
+	Password     *string  `json:"password,omitempty"`
+	Priviledges  []string `json:"priviledges"`
+	Teams        []string `json:"teams"`
+	AccessGroups []int    `json:"accessGroups"`
 }
 
 // ToJSON dump User struct
@@ -33,8 +33,8 @@ func ToUser(val interface{}) (*User, error) {
 
 //UserAuthorization
 type UserAuthorization struct {
-	Priviledges []string `json:"priviledges"`
-	AccessGroup []int    `json:"accessGroups"`
+	Priviledges  []string `json:"priviledges"`
+	AccessGroups []int    `json:"accessGroups"`
 }
 
 // ToJSON dump User struct

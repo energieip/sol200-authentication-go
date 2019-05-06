@@ -24,9 +24,20 @@ func (i *arrayString) String() string {
 }
 
 func (i *arrayString) Set(value string) error {
-	*i = append(*i, value)
+	if value == "" {
+		return nil
+	}
+
+	var list []string
+	for _, in := range strings.Split(value, ",") {
+		list = append(list, in)
+	}
+
+	*i = arrayString(list)
 	return nil
 }
+
+func (i *arrayString) Get() interface{} { return []string(*i) }
 
 type arrayInt []int
 
@@ -93,11 +104,11 @@ func main() {
 	rlog.UpdateEnv()
 
 	user := core.User{
-		Username:    username,
-		Password:    &password,
-		Priviledges: priviledges,
-		Teams:       teams,
-		AccessGroup: groups,
+		Username:     username,
+		Password:     &password,
+		Priviledges:  priviledges,
+		Teams:        teams,
+		AccessGroups: groups,
 	}
 
 	requestBody, err := json.Marshal(user)
