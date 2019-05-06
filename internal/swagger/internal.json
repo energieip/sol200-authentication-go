@@ -1,0 +1,109 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication Internal API",
+      "description": "Authentication Internal API",
+      "contact": {
+        "email": "developer@energie-ip.com"
+      },
+      "version": "1.0"
+    },
+    "paths": {
+      "/user": {
+        "post": {
+          "summary": "createUser",
+          "description": "User authentication",
+          "operationId": "createUser",
+          "parameters": [],
+          "requestBody": {
+            "description": "User credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDescription"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "content": {
+                "application/json": {
+                    "schema": {
+                        
+                    }
+                }
+              },
+              "headers": {}
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "UserDescription": {
+          "title": "UserDescription",
+          "required": [
+            "username",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "userid"
+            },
+            "password": {
+              "type": "string",
+              "description": "user password"
+            }
+          }
+        },
+        "Error": {
+          "title": "Error",
+          "required": [
+            "code",
+            "message"
+          ],
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "securitySchemes": {
+        "Authorization": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "For accessing the API a valid JWT token must be passed in all the queries in the Authorization header. Authorization header : Bearer xxxxxx.yyyyyyy.zzzzzz"
+        }
+      }
+    },
+    "security": [
+      {
+        "Authorization": []
+      }
+    ]
+  }

@@ -1,8 +1,13 @@
 package service
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 
+	"github.com/energieip/sol200-authentication-go/internal/core"
+
+	"github.com/energieip/common-components-go/pkg/duser"
 	pkg "github.com/energieip/common-components-go/pkg/service"
 	"github.com/energieip/sol200-authentication-go/internal/api"
 	"github.com/energieip/sol200-authentication-go/internal/database"
@@ -12,9 +17,10 @@ import (
 
 //CoreService content
 type CoreService struct {
-	server network.ServerNetwork //Remote server
-	db     database.Database
-	api    *api.API
+	server      network.ServerNetwork //Remote server
+	db          database.Database
+	api         *api.API
+	internalApi *api.InternalAPI
 }
 
 //Initialize service
@@ -52,8 +58,37 @@ func (s *CoreService) Initialize(confFile string) error {
 	web := api.InitAPI(s.db, *conf)
 	s.api = web
 
+	internal := api.InitInternalAPI(s.db, *conf)
+	s.internalApi = internal
+
 	rlog.Info("Authentication service started")
 	return nil
+}
+
+func (s *CoreService) createUser(evt interface{}) {
+	user, err := core.ToUser(evt)
+	if err != nil || user == nil {
+		rlog.Error("could not parse event")
+		return
+	}
+
+	err = database.SaveUser(s.db, *user)
+	if err == nil {
+		rlog.Info("User " + user.Username + " successfully added")
+		token := user.Username + *user.Password
+		hasher := sha256.New()
+		hasher.Write([]byte(token))
+		access := duser.UserAccess{
+			UserHash:    hex.EncodeToString(hasher.Sum(nil)),
+			Priviledges: user.Priviledges,
+			AccessGroup: user.AccessGroup,
+		}
+		dump, _ := access.ToJSON()
+		s.server.SendData("newUser", dump)
+
+	} else {
+		rlog.Error("Error during database register: " + err.Error())
+	}
 }
 
 //Stop service
@@ -72,6 +107,16 @@ func (s *CoreService) Run() error {
 			for eventType, event := range apiEvents {
 				rlog.Info("get API event", eventType, event)
 				switch eventType {
+
+				}
+			}
+
+		case internalApiEvents := <-s.internalApi.EventsToBackend:
+			for eventType, event := range internalApiEvents {
+				rlog.Info("get internal API event", eventType, event)
+				switch eventType {
+				case core.CreateUserEvent:
+					s.createUser(event)
 
 				}
 			}
