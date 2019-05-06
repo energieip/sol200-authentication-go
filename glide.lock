@@ -1,8 +1,8 @@
 hash: ddbaea26a4cbd45fb2122b664bec1ea5fb2821c987b493251bcf5ad56420eb18
-updated: 2019-05-03T17:52:55.147881218+02:00
+updated: 2019-05-06T11:19:15.665206444+02:00
 imports:
 - name: github.com/cenkalti/backoff
-  version: 1e4cf3da559842a91afcb6ea6141451e6c30c618
+  version: 2146c93394225c3732078705043ce9f26584d334
 - name: github.com/dgrijalva/jwt-go
   version: 3af4c746e1c248ee8491a3e0c6f7a9cd831e95f8
 - name: github.com/eclipse/paho.mqtt.golang
@@ -10,9 +10,10 @@ imports:
   subpackages:
   - packets
 - name: github.com/energieip/common-components-go
-  version: bdb10093bca0664951b1b765a29f4cbd3a186c90
+  version: b2bfb74f39d564d396f8f5434fa5aa543e4d912d
   subpackages:
   - pkg/database
+  - pkg/duser
   - pkg/network
   - pkg/service
 - name: github.com/golang/protobuf
@@ -45,7 +46,7 @@ imports:
   - blowfish
   - pbkdf2
 - name: golang.org/x/net
-  version: 7f726cade0ab7c929c16ce0b5b25bd201e25f39f
+  version: f4e77d36d62c17c2336347bb2670ddbd02d092b7
   subpackages:
   - context
   - internal/socks

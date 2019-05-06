@@ -106,7 +106,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	url := "https://127.0.0.1:1234/user"
+	url := "https://" + conf.InternalAPI.IP + ":" + conf.InternalAPI.Port + "/user"
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 	transCfg := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
@@ -123,6 +123,4 @@ func main() {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	rlog.Info("User " + username + " successfully added " + string(body))
-	rlog.Info("Access ", priviledges)
-	rlog.Info("GR ", groups)
 }

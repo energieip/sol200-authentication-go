@@ -27,11 +27,11 @@ func InitInternalAPI(db database.Database, conf pkg.ServiceConfig) *InternalAPI 
 	api := InternalAPI{
 		db:              db,
 		EventsToBackend: make(chan map[string]interface{}),
-		certificate:     conf.Certificate,
-		keyfile:         conf.Key,
-		apiPassword:     conf.APIPassword,
-		apiPort:         "1234",
-		apiIP:           "127.0.0.1",
+		certificate:     conf.InternalAPI.CaPath,
+		keyfile:         conf.InternalAPI.KeyPath,
+		apiPassword:     conf.InternalAPI.Password,
+		apiPort:         conf.InternalAPI.Port,
+		apiIP:           conf.InternalAPI.IP,
 	}
 	go api.swagger()
 	return &api
