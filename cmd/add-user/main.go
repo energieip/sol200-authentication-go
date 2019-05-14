@@ -74,8 +74,7 @@ func main() {
 	var confFile string
 	var username string
 	var password string
-
-	var priviledges arrayString
+	var priviledge string
 	var teams arrayString
 	var groups arrayInt
 
@@ -86,8 +85,8 @@ func main() {
 	flag.StringVar(&username, "u", "", "username.")
 	flag.StringVar(&password, "password", "", "password")
 	flag.StringVar(&password, "p", "", "password.")
-	flag.Var(&priviledges, "priviledges", "Priviledges list comma separated list comma separated")
-	flag.Var(&priviledges, "a", "Priviledges list comma separated")
+	flag.StringVar(&priviledge, "priviledge", "user", "Priviledge")
+	flag.StringVar(&priviledge, "a", "user", "Priviledge")
 	flag.Var(&groups, "groups", "Groups list comma separated")
 	flag.Var(&groups, "g", "Groups list comma separated")
 	flag.Var(&teams, "teams", "Teams list comma separated")
@@ -106,7 +105,7 @@ func main() {
 	user := core.User{
 		Username:     username,
 		Password:     &password,
-		Priviledges:  priviledges,
+		Priviledge:   priviledge,
 		Teams:        teams,
 		AccessGroups: groups,
 	}

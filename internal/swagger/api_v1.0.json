@@ -225,12 +225,15 @@
               "type": "string",
               "description": "user password"
             },
-            "priviledges": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "user priviledges"
+            "priviledge": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "user",
+                "maintainer"
+              ],
+              "example": "user",
+              "description": "user priviledge"
             },
             "teams": {
               "type": "array",
@@ -252,12 +255,15 @@
           "title": "UserAuthorization",
           "type": "object",
           "properties": {
-            "priviledges": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "user priviledges"
+            "priviledge": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "user",
+                "maintainer"
+              ],
+              "example": "user",
+              "description": "user priviledge"
             },
             "accessGroups": {
               "type": "array",

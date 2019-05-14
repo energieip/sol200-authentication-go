@@ -80,7 +80,7 @@ func (s *CoreService) createUser(evt interface{}) {
 		hasher.Write([]byte(token))
 		access := duser.UserAccess{
 			UserHash:     hex.EncodeToString(hasher.Sum(nil)),
-			Priviledges:  user.Priviledges,
+			Priviledge:   user.Priviledge,
 			AccessGroups: user.AccessGroups,
 		}
 		dump, _ := access.ToJSON()
