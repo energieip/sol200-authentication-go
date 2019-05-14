@@ -48,7 +48,7 @@ func InitAPI(db database.Database, conf pkg.ServiceConfig) *API {
 	api := API{
 		db:              db,
 		EventsToBackend: make(chan map[string]interface{}),
-		certificate:     conf.ExternalAPI.CaPath,
+		certificate:     conf.ExternalAPI.CertPath,
 		keyfile:         conf.ExternalAPI.KeyPath,
 		apiPassword:     conf.ExternalAPI.Password,
 		apiPort:         conf.ExternalAPI.Port,

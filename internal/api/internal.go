@@ -27,7 +27,7 @@ func InitInternalAPI(db database.Database, conf pkg.ServiceConfig) *InternalAPI 
 	api := InternalAPI{
 		db:              db,
 		EventsToBackend: make(chan map[string]interface{}),
-		certificate:     conf.InternalAPI.CaPath,
+		certificate:     conf.InternalAPI.CertPath,
 		keyfile:         conf.InternalAPI.KeyPath,
 		apiPassword:     conf.InternalAPI.Password,
 		apiPort:         conf.InternalAPI.Port,

@@ -1,5 +1,5 @@
 hash: ddbaea26a4cbd45fb2122b664bec1ea5fb2821c987b493251bcf5ad56420eb18
-updated: 2019-05-06T18:19:40.7998063+02:00
+updated: 2019-05-14T08:19:58.023658682+02:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 2146c93394225c3732078705043ce9f26584d334
@@ -10,7 +10,7 @@ imports:
   subpackages:
   - packets
 - name: github.com/energieip/common-components-go
-  version: add0d17554cf34e158dee0159277008191b4d083
+  version: cffb86c74fa4d443392921db6e9c8478dbbf326c
   subpackages:
   - pkg/database
   - pkg/duser
@@ -38,22 +38,22 @@ imports:
 - name: github.com/romana/rlog
   version: f018bc92e7d71f27c04e04cbf008860416c21d01
 - name: github.com/sirupsen/logrus
-  version: 5521996833c095f5ac75d99687cef8ad344ded12
+  version: f0375eb5b588893ff556c71dee32d98e57a9b777
 - name: golang.org/x/crypto
-  version: a29dc8fdc73485234dbef99ebedb95d2eced08de
+  version: 22d7a77e9e5f409e934ed268692e56707cd169e5
   subpackages:
   - bcrypt
   - blowfish
   - pbkdf2
 - name: golang.org/x/net
-  version: f4e77d36d62c17c2336347bb2670ddbd02d092b7
+  version: a4d6f7feada510cc50e69a37b484cb0fdc6b7876
   subpackages:
   - context
   - internal/socks
   - proxy
   - websocket
 - name: golang.org/x/sys
-  version: ca7f33d4116e3a1f9425755d6a44e7ed9b4c97df
+  version: a5b02f93d862f065920dd6a40dddc66b60d0dec4
   subpackages:
   - unix
 - name: gopkg.in/fatih/pool.v2
