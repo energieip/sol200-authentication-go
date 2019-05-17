@@ -76,6 +76,7 @@ func main() {
 	var password string
 	var priviledge string
 	var teams arrayString
+	var services arrayString
 	var groups arrayInt
 
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
@@ -91,6 +92,8 @@ func main() {
 	flag.Var(&groups, "g", "Groups list comma separated")
 	flag.Var(&teams, "teams", "Teams list comma separated")
 	flag.Var(&teams, "t", "Teams list comma separated")
+	flag.Var(&services, "services", "Services list comma separated")
+	flag.Var(&services, "s", "Services list comma separated")
 	flag.Parse()
 
 	conf, err := pkg.ReadServiceConfig(confFile)
@@ -108,6 +111,7 @@ func main() {
 		Priviledge:   priviledge,
 		Teams:        teams,
 		AccessGroups: groups,
+		Services:     services,
 	}
 
 	requestBody, err := json.Marshal(user)

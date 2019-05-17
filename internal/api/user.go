@@ -13,24 +13,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type JwtToken struct {
-	Token     string `json:"accessToken"`
-	TokenType string `json:"tokenType"`
-	ExpireIn  int    `json:"expireIn"`
-}
-
-type Claims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
-}
-
-type Credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
-
 func (api *API) createToken(w http.ResponseWriter, req *http.Request) {
-	api.setDefaultHeader(w)
+	api.setDefaultHeader(w, req)
 	var creds Credentials
 	err := json.NewDecoder(req.Body).Decode(&creds)
 
@@ -40,15 +24,13 @@ func (api *API) createToken(w http.ResponseWriter, req *http.Request) {
 	}
 
 	user := database.GetUser(api.db, creds.Username)
-
 	if user == nil || user.Password == nil || !tools.ComparePasswords(*user.Password, creds.Password) {
 		api.sendError(w, APIErrorUnauthorized, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(TokenExpirationTime * time.Second)
 	claims := &Claims{
-		Username: creds.Username,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -61,24 +43,29 @@ func (api *API) createToken(w http.ResponseWriter, req *http.Request) {
 		api.sendError(w, APIErrorInvalidValue, "Error during token generation", http.StatusInternalServerError)
 		return
 	}
-	//
-	// http.SetCookie(w, &http.Cookie{
-	// 	Name:    TokenName,
-	// 	Value:   tokenString,
-	// 	Expires: expirationTime,
-	// })
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     TokenName,
+		Value:    tokenString,
+		Expires:  expirationTime,
+		Secure:   true,
+		SameSite: http.SameSiteDefaultMode,
+		Path:     "/",
+	})
+
 	res := JwtToken{
 		Token:     tokenString,
 		TokenType: "bearer",
-		ExpireIn:  300,
+		ExpireIn:  TokenExpirationTime,
 	}
+	api.access.Set(tokenString, *user)
 	json.NewEncoder(w).Encode(res)
 }
 
 func (api *API) userInfo(w http.ResponseWriter, r *http.Request) {
 	decoded := context.Get(r, "decoded")
-	var userClaims Claims
-	mapstructure.Decode(decoded.(Claims), &userClaims)
+	var userClaims core.User
+	mapstructure.Decode(decoded.(core.User), &userClaims)
 
 	user := database.GetUser(api.db, userClaims.Username)
 
@@ -92,8 +79,8 @@ func (api *API) userInfo(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) userAuthorization(w http.ResponseWriter, r *http.Request) {
 	decoded := context.Get(r, "decoded")
-	var userClaims Claims
-	mapstructure.Decode(decoded.(Claims), &userClaims)
+	var userClaims core.User
+	mapstructure.Decode(decoded.(core.User), &userClaims)
 	user := database.GetUser(api.db, userClaims.Username)
 
 	if user == nil {
@@ -103,6 +90,7 @@ func (api *API) userAuthorization(w http.ResponseWriter, r *http.Request) {
 	permissions := core.UserAuthorization{
 		Priviledge:   user.Priviledge,
 		AccessGroups: user.AccessGroups,
+		Services:     user.Services,
 	}
 	json.NewEncoder(w).Encode(permissions)
 }

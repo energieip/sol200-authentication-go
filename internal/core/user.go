@@ -9,6 +9,7 @@ type User struct {
 	Priviledge   string   `json:"priviledge"`
 	Teams        []string `json:"teams"`
 	AccessGroups []int    `json:"accessGroups"`
+	Services     []string `json:"services"`
 }
 
 // ToJSON dump User struct
@@ -33,8 +34,9 @@ func ToUser(val interface{}) (*User, error) {
 
 //UserAuthorization
 type UserAuthorization struct {
-	Priviledge   string `json:"priviledge"`
-	AccessGroups []int  `json:"accessGroups"`
+	Priviledge   string   `json:"priviledge"`
+	AccessGroups []int    `json:"accessGroups"`
+	Services     []string `json:"services"`
 }
 
 // ToJSON dump User struct

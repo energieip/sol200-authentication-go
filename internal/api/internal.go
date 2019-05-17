@@ -65,11 +65,25 @@ func (api *InternalAPI) createInternalUser(w http.ResponseWriter, req *http.Requ
 	event[core.CreateUserEvent] = creds
 	api.EventsToBackend <- event
 	w.Write([]byte("{}"))
+}
 
+func (api *InternalAPI) removeInternalUser(w http.ResponseWriter, req *http.Request) {
+	api.setDefaultHeader(w)
+	var creds core.User
+	err := json.NewDecoder(req.Body).Decode(&creds)
+	if err != nil {
+		api.sendError(w, APIErrorBodyParsing, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	event := make(map[string]interface{})
+	event[core.RemoveUserEvent] = creds
+	api.EventsToBackend <- event
+	w.Write([]byte("{}"))
 }
 
 func (api *InternalAPI) swagger() {
 	router := mux.NewRouter()
 	router.HandleFunc("/user", api.createInternalUser).Methods("POST")
+	router.HandleFunc("/user", api.removeInternalUser).Methods("DELETE")
 	log.Fatal(http.ListenAndServeTLS(api.apiIP+":"+api.apiPort, api.certificate, api.keyfile, router))
 }

@@ -1,6 +1,6 @@
 COMPONENT=energieip-sol200-authentication
 
-BINARIES=bin/$(COMPONENT)-armhf bin/$(COMPONENT)-amd64 bin/add-user-amd64 bin/add-user-armhf
+BINARIES=bin/$(COMPONENT)-armhf bin/$(COMPONENT)-amd64 bin/add-user-amd64 bin/add-user-armhf bin/remove-user-amd64 bin/remove-user-armhf
 
 .PHONY: $(BINARIES) clean
 
@@ -10,18 +10,24 @@ bin/$(COMPONENT)-amd64:
 bin/add-user-amd64:
 	go build -o $@ -i ./cmd/add-user
 
+bin/remove-user-amd64:
+	go build -o $@ -i ./cmd/remove-user
+
 bin/$(COMPONENT)-armhf:
 	env GOOS=linux GOARCH=arm go build -o $@
 
 bin/add-user-armhf:
 	env GOOS=linux GOARCH=arm go build -o $@ -i ./cmd/add-user
 
+bin/remove-user-armhf:
+	env GOOS=linux GOARCH=arm go build -o $@ -i ./cmd/remove-user
+
 all: $(BINARIES)
 
 prepare:
 	glide install
 
-deb-amd64: bin/$(COMPONENT)-amd64 bin/add-user-amd64
+deb-amd64: bin/$(COMPONENT)-amd64 bin/add-user-amd64 bin/remove-user-amd64
 	$(eval VERSION := $(shell cat ./version))
 	$(eval ARCH := $(shell echo "amd64"))
 	$(eval BUILD_NAME := $(shell echo "$(COMPONENT)-$(VERSION)-$(ARCH)"))
@@ -30,7 +36,7 @@ deb-amd64: bin/$(COMPONENT)-amd64 bin/add-user-amd64
 
 
 .ONESHELL:
-deb-armhf: bin/$(COMPONENT)-armhf bin/add-user-armhf
+deb-armhf: bin/$(COMPONENT)-armhf bin/add-user-armhf bin/remove-user-armhf
 	$(eval VERSION := $(shell cat ./version))
 	$(eval ARCH := $(shell echo "armhf"))
 	$(eval BUILD_NAME := $(shell echo "$(COMPONENT)-$(VERSION)-$(ARCH)"))
@@ -48,6 +54,7 @@ deb:
 	cp ./scripts/Makefile $(BUILD_PATH)/../
 	cp bin/$(COMPONENT)-$(ARCH) $(BUILD_PATH)/usr/local/bin/$(COMPONENT)
 	cp bin/add-user-$(ARCH) $(BUILD_PATH)/usr/local/bin/add-user
+	cp bin/remove-user-$(ARCH) $(BUILD_PATH)/usr/local/bin/remove-user
 	cp -r internal/swaggerui $(BUILD_PATH)/media/userdata/www/auth/
 	cp -r internal/swagger/*.json $(BUILD_PATH)/media/userdata/www/auth/swaggerui/
 	make -C build DEB_PACKAGE=$(BUILD_NAME) deb

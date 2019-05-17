@@ -12,8 +12,50 @@
       "/user": {
         "post": {
           "summary": "createUser",
-          "description": "User authentication",
+          "description": "User creation",
           "operationId": "createUser",
+          "parameters": [],
+          "requestBody": {
+            "description": "User credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDescription"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "sucessful operation",
+              "content": {
+                "application/json": {
+                    "schema": {
+                        
+                    }
+                }
+              },
+              "headers": {}
+            },
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          },
+          "deprecated": false,
+          "security": []
+        },
+        "delete": {
+          "summary": "removeUser",
+          "description": "Remove User",
+          "operationId": "removeUser",
           "parameters": [],
           "requestBody": {
             "description": "User credentials",

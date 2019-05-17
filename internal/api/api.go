@@ -9,57 +9,37 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	pkg "github.com/energieip/common-components-go/pkg/service"
+	"github.com/energieip/sol200-authentication-go/internal/core"
 	"github.com/energieip/sol200-authentication-go/internal/database"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/mitchellh/mapstructure"
+	cmap "github.com/orcaman/concurrent-map"
 	"github.com/romana/rlog"
 )
-
-const (
-	APIErrorDeviceNotFound = 1
-	APIErrorBodyParsing    = 2
-	APIErrorDatabase       = 3
-	APIErrorInvalidValue   = 4
-	APIErrorUnauthorized   = 5
-	APIErrorExpiredToken   = 6
-
-	TokenName = "EiPAccessToken"
-)
-
-//APIError Message error code
-type APIError struct {
-	Code    int    `json:"code"` //errorCode
-	Message string `json:"message"`
-}
-
-type API struct {
-	db              database.Database
-	EventsToBackend chan map[string]interface{}
-	certificate     string
-	keyfile         string
-	apiPort         string
-	apiPassword     string
-	apiIP           string
-}
 
 //InitAPI start API connection
 func InitAPI(db database.Database, conf pkg.ServiceConfig) *API {
 	api := API{
 		db:              db,
+		access:          cmap.New(),
 		EventsToBackend: make(chan map[string]interface{}),
 		certificate:     conf.ExternalAPI.CertPath,
 		keyfile:         conf.ExternalAPI.KeyPath,
 		apiPassword:     conf.ExternalAPI.Password,
 		apiPort:         conf.ExternalAPI.Port,
 		apiIP:           conf.ExternalAPI.IP,
+		browsingFolder:  conf.ExternalAPI.BrowsingFolder,
 	}
 	go api.swagger()
 	return &api
 }
 
-func (api *API) setDefaultHeader(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func (api *API) setDefaultHeader(w http.ResponseWriter, req *http.Request) {
+	header := "https://" + req.Host
+	w.Header().Set("Access-Control-Allow-Origin", header)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, *")
 	w.Header().Set("Content-Type", "application/json")
 }
 
@@ -74,16 +54,8 @@ func (api *API) sendError(w http.ResponseWriter, errorCode int, message string, 
 	http.Error(w, string(inrec), httpStatus)
 }
 
-type APIInfo struct {
-	Versions []string `json:"versions"`
-}
-
-type APIFunctions struct {
-	Functions []string `json:"functions"`
-}
-
 func (api *API) getAPIs(w http.ResponseWriter, req *http.Request) {
-	api.setDefaultHeader(w)
+	api.setDefaultHeader(w, req)
 	versions := []string{"v1.0"}
 	apiInfo := APIInfo{
 		Versions: versions,
@@ -93,7 +65,7 @@ func (api *API) getAPIs(w http.ResponseWriter, req *http.Request) {
 }
 
 func (api *API) getV1Functions(w http.ResponseWriter, req *http.Request) {
-	api.setDefaultHeader(w)
+	api.setDefaultHeader(w, req)
 	apiV1 := "/v1.0"
 	functions := []string{apiV1 + "/authenticate", apiV1 + "/userInfo", apiV1 + "/userAuthorization"}
 	apiInfo := APIFunctions{
@@ -104,7 +76,7 @@ func (api *API) getV1Functions(w http.ResponseWriter, req *http.Request) {
 }
 
 func (api *API) getFunctions(w http.ResponseWriter, req *http.Request) {
-	api.setDefaultHeader(w)
+	api.setDefaultHeader(w, req)
 	functions := []string{"/versions"}
 	apiInfo := APIFunctions{
 		Functions: functions,
@@ -132,7 +104,7 @@ func (api *API) verification(next http.HandlerFunc) http.HandlerFunc {
 		} else {
 			tokenValue = tokenCookie.Value
 		}
-		api.setDefaultHeader(w)
+		api.setDefaultHeader(w, r)
 
 		if tokenValue == "" {
 			api.sendError(w, APIErrorUnauthorized, "Unauthorized access", http.StatusUnauthorized)
@@ -148,14 +120,25 @@ func (api *API) verification(next http.HandlerFunc) http.HandlerFunc {
 
 		switch err.(type) {
 		case nil:
-			claims, ok := token.Claims.(jwt.MapClaims)
+			_, ok := token.Claims.(jwt.MapClaims)
 			if !ok || !token.Valid {
+				if ok {
+					_, ok = api.access.Get(tokenValue)
+					// case token deprecated cleanup needed
+					api.access.Remove(tokenValue)
+				}
 				api.sendError(w, APIErrorUnauthorized, "Unauthorized access", http.StatusUnauthorized)
 				return
 			}
-			var userClaims Claims
-			mapstructure.Decode(claims, &userClaims)
-			context.Set(r, "decoded", userClaims)
+
+			//check in map
+			user, ok := api.access.Get(tokenValue)
+			if !ok || user == nil {
+				api.sendError(w, APIErrorExpiredToken, "Invalid Token", http.StatusUnauthorized)
+				return
+			}
+			userAccess, _ := core.ToUser(user)
+			context.Set(r, "decoded", *userAccess)
 			next(w, r)
 
 		case *jwt.ValidationError:
@@ -195,6 +178,11 @@ func (api *API) swagger() {
 	//unversionned API
 	router.HandleFunc("/versions", api.getAPIs).Methods("GET")
 	router.HandleFunc("/functions", api.getFunctions).Methods("GET")
+
+	if api.browsingFolder != "" {
+		sh2 := http.StripPrefix("/", http.FileServer(http.Dir(api.browsingFolder)))
+		router.PathPrefix("/").Handler(sh2)
+	}
 
 	log.Fatal(http.ListenAndServeTLS(api.apiIP+":"+api.apiPort, api.certificate, api.keyfile, router))
 }

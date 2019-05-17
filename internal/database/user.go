@@ -31,3 +31,9 @@ func GetUser(db Database, username string) *core.User {
 	}
 	return user
 }
+
+func RemoveUser(db Database, usr core.User) error {
+	criteria := make(map[string]interface{})
+	criteria["Username"] = usr.Username
+	return db.DeleteRecord(ConfigDB, UsersTable, criteria)
+}

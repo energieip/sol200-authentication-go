@@ -82,9 +82,39 @@ func (s *CoreService) createUser(evt interface{}) {
 			UserHash:     hex.EncodeToString(hasher.Sum(nil)),
 			Priviledge:   user.Priviledge,
 			AccessGroups: user.AccessGroups,
+			Services:     user.Services,
 		}
 		dump, _ := access.ToJSON()
-		s.server.SendData("newUser", dump)
+		s.server.SendData(core.CreateUserEvent, dump)
+
+	} else {
+		rlog.Error("Error during database register: " + err.Error())
+	}
+}
+
+func (s *CoreService) removeUser(evt interface{}) {
+	user, err := core.ToUser(evt)
+	if err != nil || user == nil {
+		rlog.Error("could not parse event")
+		return
+	}
+
+	if user.Password == nil {
+		rlog.Error("could not find password")
+		return
+	}
+
+	err = database.RemoveUser(s.db, *user)
+	if err == nil {
+		rlog.Info("User " + user.Username + " successfully removed")
+		token := user.Username + *user.Password
+		hasher := sha256.New()
+		hasher.Write([]byte(token))
+		access := duser.UserAccess{
+			UserHash: hex.EncodeToString(hasher.Sum(nil)),
+		}
+		dump, _ := access.ToJSON()
+		s.server.SendData(core.RemoveUserEvent, dump)
 
 	} else {
 		rlog.Error("Error during database register: " + err.Error())
@@ -117,6 +147,8 @@ func (s *CoreService) Run() error {
 				switch eventType {
 				case core.CreateUserEvent:
 					s.createUser(event)
+				case core.RemoveUserEvent:
+					s.removeUser(event)
 
 				}
 			}
