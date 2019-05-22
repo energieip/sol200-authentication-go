@@ -1,5 +1,5 @@
 hash: ddbaea26a4cbd45fb2122b664bec1ea5fb2821c987b493251bcf5ad56420eb18
-updated: 2019-05-22T11:02:51.330475423+02:00
+updated: 2019-05-22T17:04:00.423509529+02:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 2146c93394225c3732078705043ce9f26584d334
@@ -10,9 +10,10 @@ imports:
   subpackages:
   - packets
 - name: github.com/energieip/common-components-go
-  version: 287983ce7c48dca4849bb8ca4f417c27279a210d
+  version: 06e6ca003a6f2857141ac7d26062819f2929d110
   subpackages:
   - pkg/database
+  - pkg/dserver
   - pkg/duser
   - pkg/network
   - pkg/service
@@ -48,7 +49,7 @@ imports:
   - blowfish
   - pbkdf2
 - name: golang.org/x/net
-  version: 018c4d40a106a7ae83689758294fcd8d23850745
+  version: fa69b94a3b58e78ecdde45ef38891b5026a9f8a6
   subpackages:
   - context
   - internal/socks
