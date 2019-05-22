@@ -3,10 +3,12 @@ package service
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"os"
 
 	"github.com/energieip/sol200-authentication-go/internal/core"
 
+	"github.com/energieip/common-components-go/pkg/dserver"
 	"github.com/energieip/common-components-go/pkg/duser"
 	pkg "github.com/energieip/common-components-go/pkg/service"
 	"github.com/energieip/sol200-authentication-go/internal/api"
@@ -72,14 +74,17 @@ func (s *CoreService) createUser(evt interface{}) {
 		return
 	}
 
+	token := user.Username + *user.Password
+	hasher := sha256.New()
+	hasher.Write([]byte(token))
+
+	user.UserKey = hex.EncodeToString(hasher.Sum(nil))
+
 	err = database.SaveUser(s.db, *user)
 	if err == nil {
 		rlog.Info("User " + user.Username + " successfully added")
-		token := user.Username + *user.Password
-		hasher := sha256.New()
-		hasher.Write([]byte(token))
 		access := duser.UserAccess{
-			UserHash:     hex.EncodeToString(hasher.Sum(nil)),
+			UserHash:     user.UserKey,
 			Priviledge:   user.Priviledge,
 			AccessGroups: user.AccessGroups,
 			Services:     user.Services,
@@ -90,6 +95,19 @@ func (s *CoreService) createUser(evt interface{}) {
 	} else {
 		rlog.Error("Error during database register: " + err.Error())
 	}
+}
+
+func (s *CoreService) sendDump(evt interface{}) {
+	server, err := dserver.ToServer(evt)
+	if err != nil || server == nil {
+		rlog.Error("could not parse event")
+		return
+	}
+	users := database.GetUsers(s.db)
+	inrec, _ := json.Marshal(users)
+	dump := string(inrec[:])
+	topic := "/write/server/" + server.Mac + "/" + core.DumpUserEvent
+	s.server.SendData(topic, dump)
 }
 
 func (s *CoreService) removeUser(evt interface{}) {
@@ -150,6 +168,14 @@ func (s *CoreService) Run() error {
 				case core.RemoveUserEvent:
 					s.removeUser(event)
 
+				}
+			}
+
+		case serverEvents := <-s.server.Events:
+			for eventType, event := range serverEvents {
+				switch eventType {
+				case core.HelloEvent:
+					go s.sendDump(event)
 				}
 			}
 		}

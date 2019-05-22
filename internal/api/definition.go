@@ -14,9 +14,8 @@ const (
 	APIErrorUnauthorized   = 5
 	APIErrorExpiredToken   = 6
 
-	TokenName = "EiPAccessToken"
-
-	TokenExpirationTime = 500
+	TokenName           = "EiPAccessToken"
+	TokenExpirationTime = 86400 // in seconds: 1day
 )
 
 //APIError Message error code

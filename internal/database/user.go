@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/energieip/common-components-go/pkg/duser"
 	"github.com/energieip/sol200-authentication-go/internal/core"
 	"github.com/energieip/sol200-authentication-go/internal/tools"
 )
@@ -36,4 +37,29 @@ func RemoveUser(db Database, usr core.User) error {
 	criteria := make(map[string]interface{})
 	criteria["Username"] = usr.Username
 	return db.DeleteRecord(ConfigDB, UsersTable, criteria)
+}
+
+//GetUsers return the users list
+func GetUsers(db Database) map[string]duser.UserAccess {
+	users := map[string]duser.UserAccess{}
+	stored, err := db.FetchAllRecords(ConfigDB, UsersTable)
+	if err != nil || stored == nil {
+		return users
+	}
+	for _, e := range stored {
+		user, err := core.ToUser(e)
+		if err != nil || user == nil {
+			continue
+		}
+
+		dump := duser.UserAccess{
+			UserHash:     user.UserKey,
+			Priviledge:   user.Priviledge,
+			AccessGroups: user.AccessGroups,
+			Services:     user.Services,
+		}
+
+		users[user.UserKey] = dump
+	}
+	return users
 }

@@ -1,16 +1,20 @@
 package network
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/energieip/common-components-go/pkg/dserver"
 	genericNetwork "github.com/energieip/common-components-go/pkg/network"
 	pkg "github.com/energieip/common-components-go/pkg/service"
+	"github.com/energieip/sol200-authentication-go/internal/core"
 	"github.com/romana/rlog"
 )
 
 //ServerNetwork network object
 type ServerNetwork struct {
-	Iface genericNetwork.NetworkInterface
+	Iface  genericNetwork.NetworkInterface
+	Events chan map[string]dserver.ServerConfig
 }
 
 //CreateServerNetwork create network server object
@@ -20,7 +24,8 @@ func CreateServerNetwork() (*ServerNetwork, error) {
 		return nil, err
 	}
 	serverNet := ServerNetwork{
-		Iface: serverBroker,
+		Iface:  serverBroker,
+		Events: make(chan map[string]dserver.ServerConfig),
 	}
 	return &serverNet, nil
 
@@ -29,6 +34,7 @@ func CreateServerNetwork() (*ServerNetwork, error) {
 //LocalConnection connect service to server broker
 func (net ServerNetwork) LocalConnection(conf pkg.ServiceConfig, clientID string) error {
 	cbkServer := make(map[string]func(genericNetwork.Client, genericNetwork.Message))
+	cbkServer["/read/server/+/setup/hello"] = net.onHello
 
 	confServer := genericNetwork.NetworkConfig{
 		IP:         conf.NetworkBroker.IP,
@@ -62,6 +68,21 @@ func (net ServerNetwork) LocalConnection(conf pkg.ServiceConfig, clientID string
 //Disconnect from server
 func (net ServerNetwork) Disconnect() {
 	net.Iface.Disconnect()
+}
+
+func (net ServerNetwork) onHello(client genericNetwork.Client, msg genericNetwork.Message) {
+	payload := msg.Payload()
+	rlog.Info(msg.Topic() + " : " + string(payload))
+	var serverConfig dserver.ServerConfig
+	err := json.Unmarshal(payload, &serverConfig)
+	if err != nil {
+		rlog.Error("Cannot parse config ", err.Error())
+		return
+	}
+
+	event := make(map[string]dserver.ServerConfig)
+	event[core.HelloEvent] = serverConfig
+	net.Events <- event
 }
 
 //SendData to server

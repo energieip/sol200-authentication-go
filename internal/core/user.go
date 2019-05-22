@@ -10,6 +10,7 @@ type User struct {
 	Teams        []string `json:"teams"`
 	AccessGroups []int    `json:"accessGroups"`
 	Services     []string `json:"services"`
+	UserKey      string   `json:"userKey"`
 }
 
 // ToJSON dump User struct
