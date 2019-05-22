@@ -51,6 +51,7 @@ func (api *API) createToken(w http.ResponseWriter, req *http.Request) {
 		Secure:   true,
 		SameSite: http.SameSiteDefaultMode,
 		Path:     "/",
+		MaxAge:   TokenExpirationTime,
 	})
 
 	res := JwtToken{
@@ -93,4 +94,25 @@ func (api *API) userAuthorization(w http.ResponseWriter, r *http.Request) {
 		Services:     user.Services,
 	}
 	json.NewEncoder(w).Encode(permissions)
+}
+
+func (api *API) logout(w http.ResponseWriter, req *http.Request) {
+	decoded := context.Get(req, "token")
+	var tokenString string
+	mapstructure.Decode(decoded.(string), &tokenString)
+
+	// see https://golang.org/pkg/net/http/#Cookie
+	// Setting MaxAge<0 means delete cookie now.
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     TokenName,
+		MaxAge:   -1,
+		Secure:   true,
+		SameSite: http.SameSiteDefaultMode,
+		Path:     "/",
+	})
+
+	api.access.Remove(tokenString)
+
+	w.Write([]byte("{}"))
 }
