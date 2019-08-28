@@ -1,6 +1,8 @@
 package tools
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 func HashAndSalt(pwd string) (string, error) {
 	pwdBytes := []byte(pwd)

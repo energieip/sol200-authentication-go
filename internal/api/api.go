@@ -164,7 +164,7 @@ func (api *API) verification(next http.HandlerFunc) http.HandlerFunc {
 
 func (api *API) swagger() {
 	router := mux.NewRouter()
-	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("/media/userdata/www/auth/swaggerui/")))
+	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("/data/www/auth/swaggerui/")))
 	router.PathPrefix("/swaggerui/").Handler(sh)
 
 	// API v1.0

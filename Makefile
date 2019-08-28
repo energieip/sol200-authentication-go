@@ -17,10 +17,10 @@ bin/$(COMPONENT)-armhf:
 	env GOOS=linux GOARCH=arm go build -o $@
 
 bin/add-user-armhf:
-	env GOOS=linux GOARCH=arm go build -o $@ -i ./cmd/add-user
+	env GOOS=linux GOARCH=arm go build -o $@ ./cmd/add-user
 
 bin/remove-user-armhf:
-	env GOOS=linux GOARCH=arm go build -o $@ -i ./cmd/remove-user
+	env GOOS=linux GOARCH=arm go build -o $@ ./cmd/remove-user
 
 all: $(BINARIES)
 
@@ -44,7 +44,7 @@ deb-armhf: bin/$(COMPONENT)-armhf bin/add-user-armhf bin/remove-user-armhf
 	make deb VERSION=$(VERSION) BUILD_PATH=$(BUILD_PATH) ARCH=$(ARCH) BUILD_NAME=$(BUILD_NAME)
 
 deb:
-	mkdir -p $(BUILD_PATH)/usr/local/bin $(BUILD_PATH)/etc/$(COMPONENT) $(BUILD_PATH)/etc/systemd/system $(BUILD_PATH)/media/userdata/www/auth/
+	mkdir -p $(BUILD_PATH)/usr/local/bin $(BUILD_PATH)/etc/$(COMPONENT) $(BUILD_PATH)/etc/systemd/system $(BUILD_PATH)/data/www/auth/
 	cp -r ./scripts/DEBIAN $(BUILD_PATH)/
 	cp ./scripts/config.json $(BUILD_PATH)/etc/$(COMPONENT)/
 	cp ./scripts/*.service $(BUILD_PATH)/etc/systemd/system/
@@ -55,8 +55,8 @@ deb:
 	cp bin/$(COMPONENT)-$(ARCH) $(BUILD_PATH)/usr/local/bin/$(COMPONENT)
 	cp bin/add-user-$(ARCH) $(BUILD_PATH)/usr/local/bin/add-user
 	cp bin/remove-user-$(ARCH) $(BUILD_PATH)/usr/local/bin/remove-user
-	cp -r internal/swaggerui $(BUILD_PATH)/media/userdata/www/auth/
-	cp -r internal/swagger/*.json $(BUILD_PATH)/media/userdata/www/auth/swaggerui/
+	cp -r internal/swaggerui $(BUILD_PATH)/data/www/auth/
+	cp -r internal/swagger/*.json $(BUILD_PATH)/data/www/auth/swaggerui/
 	make -C build DEB_PACKAGE=$(BUILD_NAME) deb
 
 clean:
